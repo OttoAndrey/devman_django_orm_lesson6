@@ -10,6 +10,22 @@ class PostQuerySet(models.QuerySet):
         posts_at_year = self.filter(published_at__year=year).order_by('published_at')
         return posts_at_year
 
+    def popular(self):
+        popular_posts = Post.objects.annotate(num_likes=Count('likes')).order_by('-num_likes')
+        return popular_posts
+
+    def fetch_with_comments_count(self):
+        most_popular_posts_ids = [post.id for post in self]
+        posts_with_comments = Post.objects.filter(id__in=most_popular_posts_ids) \
+                                          .annotate(comments_count=Count('comments'))
+        ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
+        count_for_id = dict(ids_and_comments)
+
+        for post in self:
+            post.num_com = count_for_id[post.id]
+
+        return list(self)
+
 
 class TagQuerySet(models.QuerySet):
 
@@ -27,7 +43,8 @@ class Post(models.Model):
     image = models.ImageField("Картинка")
     published_at = models.DateTimeField("Дата и время публикации")
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор", limit_choices_to={'is_staff': True})
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор",
+                               limit_choices_to={'is_staff': True})
     likes = models.ManyToManyField(User, related_name="liked_posts", verbose_name="Кто лайкнул", blank=True)
     tags = models.ManyToManyField("Tag", related_name="posts", verbose_name="Теги")
 
