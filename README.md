@@ -35,6 +35,10 @@ python3 manage.py runserver
 - `SECRET_KEY` — секретный ключ проекта
 - `DATABASE_NAME` — путь до базы данных, например: `schoolbase.sqlite3`
 
+## Используемые библиотеки
+
+* [django-debug-toolbar](https://pypi.org/project/django-debug-toolbar/) - для оптимизации запросов
+
 ## Цели проекта
 
 Код написан в учебных целях — для курса по Python и веб-разработке на сайте [Devman](https://dvmn.org).
